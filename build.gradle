@@ -36,6 +36,15 @@ dependencies {
 	compile 'com.google.api-client:google-api-client:1.23.0'
 	compile 'com.google.oauth-client:google-oauth-client-jetty:1.23.0'
 	compile 'com.google.apis:google-api-services-youtube:v3-rev222-1.25.0'
+	implementation group: 'org.json', name: 'json', version: '20141113'
+
+	implementation group: 'com.fasterxml.jackson.dataformat', name: 'jackson-dataformat-csv', version: '2.9.4'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.4'
+	implementation group: 'com.fasterxml.jackson.jaxrs', name: 'jackson-jaxrs-json-provider', version: '2.9.4'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-annotations', version: '2.9.4'
+
+
+
 }
 
 test {
