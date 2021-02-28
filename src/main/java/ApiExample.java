@@ -17,6 +17,8 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
+import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.PlaylistListResponse;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -48,8 +50,11 @@ public class ApiExample {
         GoogleAuthorizationCodeFlow flow =
                 new GoogleAuthorizationCodeFlow.Builder(httpTransport, JSON_FACTORY, clientSecrets, SCOPES)
                         .build();
-        Credential credential =
-                new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+     //   Credential credential =
+     //           new AuthorizationCodeInstalledApp(flow, new LocalServerReceiver()).authorize("user");
+          LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setPort(8080).build();
+          Credential credential = new AuthorizationCodeInstalledApp(flow, localReceiver).authorize("user");
+
         return credential;
     }
 
@@ -80,6 +85,12 @@ public class ApiExample {
         YouTube.Channels.List request = youtubeService.channels()
                 .list("snippet,contentDetails,statistics");
         ChannelListResponse response = request.setId("UC_x5XG1OV2P6uZZ5FSM9Ttw").execute();
+
         System.out.println(response);
+
+        YouTube.PlaylistItems.List request2 = youtubeService.playlistItems()
+                .list("snippet,contentDetails");
+        PlaylistItemListResponse response2 = request2.setPlaylistId("UU_x5XG1OV2P6uZZ5FSM9Ttw").execute();
+        System.out.println(response2);
     }
 }
