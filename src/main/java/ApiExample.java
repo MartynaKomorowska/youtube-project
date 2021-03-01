@@ -71,16 +71,20 @@ public class ApiExample {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.readTree(response3.toString());
+        JsonNode items = node.get("items");
+        JsonNode statistics = items.findValue("statistics");
+        System.out.println(statistics);
+
 
         CsvSchema.Builder csvSchemaBuilder = CsvSchema.builder();
-        JsonNode firstObject = node.elements().next();
+        JsonNode firstObject = statistics.elements().next();
         firstObject.fieldNames().forEachRemaining(csvSchemaBuilder::addColumn);
         CsvSchema csvSchema = csvSchemaBuilder.build().withHeader();
 
 
         final CsvMapper csvMapper = new CsvMapper();
         final CsvSchema schema = csvMapper.schemaFor(JsonNode.class);
-        final String csv = csvMapper.writer(schema.withUseHeader(true)).writeValueAsString(response3);
+        final String csv = csvMapper.writer(schema.withUseHeader(true)).writeValueAsString(new File("src/main/resources/orderLines.csv"));
         System.out.println(csv);
     }
 
@@ -113,7 +117,7 @@ public class ApiExample {
         JsonNode items = node.get("items");
         JsonNode contentDetails = items.findValue("contentDetails");
         String videoId = contentDetails.get("videoId").asText();
-     //   System.out.println(videoId);
+        System.out.println(videoId);
         return videoId;
 
     }
