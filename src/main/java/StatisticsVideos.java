@@ -28,16 +28,16 @@ import java.util.Arrays;
 import java.util.Collection;
 
 
-public class ApiExample {
+public class StatisticsVideos {
     private static final String CLIENT_SECRETS = "client_secret.json";
     private static final Collection<String> SCOPES =
             Arrays.asList("https://www.googleapis.com/auth/youtube.readonly");
 
-    private static final String APPLICATION_NAME = "API code samples";
+    private static final String APPLICATION_NAME = "Statistics videos";
     private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
 
     public static Credential authorize(final NetHttpTransport httpTransport) throws IOException {
-        InputStream in = ApiExample.class.getResourceAsStream(CLIENT_SECRETS);
+        InputStream in = StatisticsVideos.class.getResourceAsStream(CLIENT_SECRETS);
         GoogleClientSecrets clientSecrets =
                 GoogleClientSecrets.load(JSON_FACTORY, new InputStreamReader(in));
         GoogleAuthorizationCodeFlow flow =
@@ -46,10 +46,8 @@ public class ApiExample {
 
         LocalServerReceiver localReceiver = new LocalServerReceiver.Builder().setPort(8080).build();
         Credential credential = new AuthorizationCodeInstalledApp(flow, localReceiver).authorize("user");
-
         return credential;
     }
-
 
     public static YouTube getService() throws GeneralSecurityException, IOException {
         final NetHttpTransport httpTransport = GoogleNetHttpTransport.newTrustedTransport();
@@ -66,29 +64,23 @@ public class ApiExample {
         YouTube youtubeService = getService();
         YouTube.Videos.List request = youtubeService.videos()
                 .list("statistics");
-        VideoListResponse response3 = request.setId(getResponse2()).execute();
-        System.out.println(response3);
+        VideoListResponse response = request.setId(getVideoId()).execute();
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(response3.toString());
+        JsonNode node = mapper.readTree(response.toString());
         JsonNode items = node.get("items");
         JsonNode statistics = items.findValue("statistics");
-        System.out.println(statistics);
-
 
         CsvSchema.Builder csvSchemaBuilder = CsvSchema.builder();
         JsonNode firstObject = statistics.elements().next();
         firstObject.fieldNames().forEachRemaining(csvSchemaBuilder::addColumn);
-        CsvSchema csvSchema = csvSchemaBuilder.build().withHeader();
-
 
         final CsvMapper csvMapper = new CsvMapper();
         final CsvSchema schema = csvMapper.schemaFor(JsonNode.class);
         final String csv = csvMapper.writer(schema.withUseHeader(true)).writeValueAsString(new File("src/main/resources/orderLines.csv"));
-        System.out.println(csv);
     }
 
-    public static String getResponse1() throws GeneralSecurityException, IOException {
+    public static String getRelatedPlaylistId() throws GeneralSecurityException, IOException {
         YouTube youtubeService = getService();
         YouTube.Channels.List request = youtubeService.channels()
                 .list("contentDetails");
@@ -103,21 +95,17 @@ public class ApiExample {
         return uploads;
     }
 
-    public static String getResponse2() throws GeneralSecurityException, IOException {
+    public static String getVideoId() throws GeneralSecurityException, IOException {
         YouTube youtubeService = getService();
-        YouTube.Channels.List request = youtubeService.channels()
+        YouTube.PlaylistItems.List request = youtubeService.playlistItems()
                 .list("contentDetails");
-
-        YouTube.PlaylistItems.List request2 = youtubeService.playlistItems()
-                .list("contentDetails");
-        PlaylistItemListResponse response2 = request2.setPlaylistId(getResponse1()).execute();
+        PlaylistItemListResponse response = request.setPlaylistId(getRelatedPlaylistId()).execute();
 
         ObjectMapper mapper = new ObjectMapper();
-        JsonNode node = mapper.readTree(response2.toString());
+        JsonNode node = mapper.readTree(response.toString());
         JsonNode items = node.get("items");
         JsonNode contentDetails = items.findValue("contentDetails");
         String videoId = contentDetails.get("videoId").asText();
-        System.out.println(videoId);
         return videoId;
 
     }

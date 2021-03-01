@@ -18,7 +18,7 @@ configurations {
 apply plugin: 'java'
 apply plugin: 'application'
 
-mainClassName = 'ApiExample'
+mainClassName = 'StatisticsVideos'
 
 
 repositories {
