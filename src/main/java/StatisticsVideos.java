@@ -17,6 +17,7 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.youtube.YouTube;
 import com.google.api.services.youtube.model.ChannelListResponse;
 import com.google.api.services.youtube.model.PlaylistItemListResponse;
+import com.google.api.services.youtube.model.Video;
 import com.google.api.services.youtube.model.VideoListResponse;
 
 import java.io.File;
@@ -71,13 +72,12 @@ public class StatisticsVideos {
         JsonNode items = node.get("items");
         JsonNode statistics = items.findValue("statistics");
 
-        CsvSchema.Builder csvSchemaBuilder = CsvSchema.builder();
-        JsonNode firstObject = statistics.elements().next();
-        firstObject.fieldNames().forEachRemaining(csvSchemaBuilder::addColumn);
+        mapper.convertValue(statistics, Video.class);
 
         final CsvMapper csvMapper = new CsvMapper();
-        final CsvSchema schema = csvMapper.schemaFor(JsonNode.class);
+        final CsvSchema schema = csvMapper.schemaFor(Video.class);
         final String csv = csvMapper.writer(schema.withUseHeader(true)).writeValueAsString(new File("src/main/resources/orderLines.csv"));
+        System.out.println(csv);
     }
 
     public static String getRelatedPlaylistId() throws GeneralSecurityException, IOException {
